@@ -19,8 +19,8 @@
     "main": [
       "walksy.popchams.TotemPopChams"
     ],
-    "modmenu": [
-      "walksy.popchams.config.ModMenuIntegration"
+    "walksylib": [
+      "walksy.popchams.config.WalksyLibIntegration"
     ]
   },
   "mixins": [

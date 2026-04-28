@@ -6,14 +6,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import walksy.popchams.capture.CapturedPlayer;
+import walksy.popchams.config.Config;
 import walksy.popchams.handler.PositionHandler;
 
 @Mixin(ClientPlayerEntity.class)
 public class ClientPlayerEntityMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
-    public void tick(CallbackInfo ci)
-    {
-        PositionHandler.getPositions().forEach(CapturedPlayer::tickAge);
+    public void tick(CallbackInfo ci) {
+        if (!Config.modEnabled) return;
+        PositionHandler.getPositions().forEach(p -> {
+            p.tickAge(Config.lifeTime);
+        });
     }
 }

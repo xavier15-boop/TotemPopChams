@@ -1,67 +1,114 @@
 package walksy.popchams.config;
 
-import dev.isxander.yacl3.api.YetAnotherConfigLib;
-import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
-import dev.isxander.yacl3.config.v2.api.SerialEntry;
-import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
-import walksy.popchams.config.impl.CategoryBank;
+import main.walksy.lib.api.WalksyLibConfig;
+import main.walksy.lib.core.config.impl.LocalConfig;
+import main.walksy.lib.core.config.local.Category;
+import main.walksy.lib.core.config.local.Option;
+import main.walksy.lib.core.config.local.builders.LocalConfigBuilder;
+import main.walksy.lib.core.config.local.options.BooleanOption;
+import main.walksy.lib.core.config.local.options.ColorOption;
+import main.walksy.lib.core.config.local.options.NumericalOption;
+import main.walksy.lib.core.config.local.options.groups.OptionGroup;
+import main.walksy.lib.core.config.local.options.type.WalksyLibColor;
+import main.walksy.lib.core.utils.PathUtils;
 
-import java.awt.*;
+public class Config implements WalksyLibConfig {
 
-public class Config {
+    public static boolean modEnabled = true;
+    public static boolean showOwnPops = false;
+    public static boolean fadeOut = true;
+    public static int lifeTime = 50;
+    public static boolean disperse = false;
+    public static double disperseSpeed = 1.5;
+    public static double disperseMaxDistance = 1;
 
-    public static final ConfigClassHandler<Config> CONFIG = ConfigClassHandler.createBuilder(Config.class)
-        .serializer(config -> GsonConfigSerializerBuilder.create(config)
-            .setPath(FabricLoader.getInstance().getConfigDir().resolve("walksytotempopchams.json"))
-            .build())
-        .build();
+    public static boolean filledModelEnabled = true;
+    public static WalksyLibColor filledColor = new WalksyLibColor(137, 0, 255, 150);
 
-    @SerialEntry
-    public boolean modEnabled = true;
+    public static boolean wireframeEnabled = true;
+    public static WalksyLibColor wireframeColor = new WalksyLibColor(100, 0, 255, 150);
+    public static double wireframeThickness = 2.0;
 
-    @SerialEntry
-    public boolean showOwnPops = false;
+    private static final Option<Boolean> modEnabledOption = BooleanOption.createBuilder("Mod Enabled", () -> modEnabled, modEnabled, newV -> modEnabled = newV)
+            .build();
 
-    @SerialEntry
-    public boolean fadeOut = true;
+    private static final Option<Boolean> showOwnPopsOption = BooleanOption.createBuilder("Show Own Pops", () -> showOwnPops, showOwnPops, newV -> showOwnPops = newV)
+            .availability(() -> modEnabled, "")
+            .build();
 
-    @SerialEntry
-    public double lifeTime = 50;
+    private static final Option<Boolean> fadeOutOption = BooleanOption.createBuilder("Fade Over Time", () -> fadeOut, fadeOut, newV -> fadeOut = newV)
+            .availability(() -> modEnabled, "")
+            .build();
 
-    @SerialEntry
-    public boolean disperse = false;
+    private static final Option<Integer> lifeTimeOption = NumericalOption.<Integer>createBuilder("Fading Life Time", () -> lifeTime, lifeTime, newV -> lifeTime = newV)
+            .values(0, 250, 1)
+            .availability(() -> modEnabled && fadeOut, "")
+            .build();
 
-    @SerialEntry
-    public double disperseSpeed = 1.5;
+    private static final Option<Boolean> disperseOption = BooleanOption.createBuilder("Disperse Enabled", () -> disperse, disperse, newV -> disperse = newV)
+            .availability(() -> modEnabled, "")
+            .build();
 
-    @SerialEntry
-    public double disperseMaxDistance = 1;
+    private static final Option<Double> disperseSpeedOption = NumericalOption.<Double>createBuilder("Disperse Speed", () -> disperseSpeed, disperseSpeed, newV -> disperseSpeed = newV)
+            .values(0D, 10D, 0.5D)
+            .availability(() -> modEnabled && disperse, "") // was incorrectly checking fadeOut
+            .build();
 
-    @SerialEntry
-    public boolean filledModelEnabled = true;
+    private static final Option<Double> disperseMaxDistanceOption = NumericalOption.<Double>createBuilder("Fading Life Time", () -> disperseMaxDistance, disperseMaxDistance, newV -> disperseMaxDistance = newV)
+            .values(0D, 8D, 0.1D)
+            .availability(() -> modEnabled && disperse, "")
+            .build();
 
-    @SerialEntry
-    public Color filledColor = new Color(137, 0, 255, 150);
+    private static final Option<Boolean> filledModelEnabledOption = BooleanOption.createBuilder("Filled Model Enabled", () -> filledModelEnabled, filledModelEnabled, newV -> filledModelEnabled = newV)
+            .availability(() -> modEnabled, "")
+            .build();
 
-    @SerialEntry
-    public boolean wireframeEnabled = true;
+    private static final Option<WalksyLibColor> filledModelColorOption = ColorOption.createBuilder("Filled Model Color", () -> filledColor, filledColor, newV -> filledColor = newV)
+            .availability(() -> modEnabled && filledModelEnabled, "")
+            .build();
 
-    @SerialEntry
-    public Color wireframeColor = new Color(100, 0, 255, 150);
+    private static final Option<Boolean> wireframeEnabledOption = BooleanOption.createBuilder("Wireframe Enabled", () -> wireframeEnabled, wireframeEnabled, newV -> wireframeEnabled = newV)
+            .availability(() -> modEnabled, "")
+            .build();
 
-    @SerialEntry
-    public double wireframeThickness = 2.0;
+    private static final Option<WalksyLibColor> wireframeColorOption = ColorOption.createBuilder("Wireframe Color", () -> wireframeColor, wireframeColor, newV -> wireframeColor = newV)
+            .availability(() -> modEnabled && wireframeEnabled, "")
+            .build();
+
+    private static final Option<Double> wireframeThicknessOption = NumericalOption.<Double>createBuilder("Wireframe Thickness", () -> wireframeThickness, wireframeThickness, newV -> wireframeThickness = newV)
+            .values(0D, 5D, 0.1D)
+            .availability(() -> modEnabled && wireframeEnabled, "")
+            .build();
+
+    private static final Category generalCategory = Category.createBuilder("General")
+            .group(OptionGroup.createBuilder("Global Options")
+                    .addOption(modEnabledOption)
+                    .addOption(showOwnPopsOption)
+                    .addOption(fadeOutOption)
+                    .addOption(lifeTimeOption)
+                    .build())
+            .group(OptionGroup.createBuilder("Disperse Options")
+                    .addOption(disperseOption)
+                    .addOption(disperseSpeedOption)
+                    .addOption(disperseMaxDistanceOption)
+                    .build())
+            .group(OptionGroup.createBuilder("Filled Model Options")
+                    .addOption(filledModelEnabledOption)
+                    .addOption(filledModelColorOption)
+                    .build())
+            .group(OptionGroup.createBuilder("Wireframe Options")
+                    .addOption(wireframeEnabledOption)
+                    .addOption(wireframeColorOption)
+                    .addOption(wireframeThicknessOption)
+                    .build())
+            .build();
 
 
-    public static Screen createConfigScreen(Screen parent) {
-        var screen = YetAnotherConfigLib.create(CONFIG, (defaults, config, builder) -> {
-            builder.title(Text.literal("Totem Pop Chams Config"));
-            builder.category(CategoryBank.general(config, defaults));
-            return builder;
-        });
-        return screen.generateScreen(parent);
+    @Override
+    public LocalConfig define() {
+        return LocalConfig.createBuilder("Totem Pop Chams")
+                .path(PathUtils.ofConfigDir("totempopchams"))
+                .category(generalCategory)
+                .build();
     }
 }

@@ -1,16 +1,18 @@
 package walksy.popchams;
 
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.client.MinecraftClient;
-import walksy.popchams.config.Config;
+import walksy.popchams.render.ChamExtractor;
 
 public class TotemPopChams implements ModInitializer {
 
-    public static MinecraftClient mc = MinecraftClient.getInstance();
+    private static ChamExtractor extractor;
 
     @Override
-    public void onInitialize()
-    {
-        Config.CONFIG.load();
+    public void onInitialize() {
+        extractor = new ChamExtractor();
+    }
+
+    public static ChamExtractor getExtractor() {
+        return extractor;
     }
 }
