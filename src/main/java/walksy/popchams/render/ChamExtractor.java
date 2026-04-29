@@ -126,7 +126,7 @@ public class ChamExtractor {
             case RIGHT_LEG -> new Vec3d(-0.3, 1, 0);
         };
         final Vec3d noise = new Vec3d((rand.nextDouble() - 0.5) * 0.5, (rand.nextDouble() - 0.5) * 0.5, (rand.nextDouble() - 0.5) * 0.5);
-        return base.add(noise).normalize().multiply(this.state.disperseMaxDistance);
+        return base.add(noise).normalize().multiply(this.state.displacementAmount);
     }
 
     private void setupRenderState(final PlayerEntityRenderState state, final PlayerEntityModel model) {
