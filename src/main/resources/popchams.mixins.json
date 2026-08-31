@@ -1,14 +1,14 @@
 {
 	"required": true,
 	"package": "walksy.popchams.mixin",
-	"compatibilityLevel": "JAVA_17",
+	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"ClientPlayNetworkHandlerMixin",
-    "GameRendererMixin",
-    "ModelPartAccessor",
-    "ClientPlayerEntityMixin"
+    	"GameRendererMixin",
+    	"ModelPartAccessor",
+    	"ClientPlayerEntityMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
-	}
+		}
 }
